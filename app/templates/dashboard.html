@@ -1,6 +1,101 @@
 {% extends "base.html" %}
 {% block title %}Dashboard — BB Inventory{% endblock %}
 {% block header %}BB Inventory{% endblock %}
+
 {% block content %}
-<p class="text-gray-400">Dashboard coming in Phase 6.</p>
+<div class="space-y-4">
+
+  {# Products accordion #}
+  <div x-data="{ open: false }" class="bg-gray-900 rounded-2xl overflow-hidden">
+    <button @click="open = !open"
+            class="w-full flex items-center justify-between px-5 py-4 text-left active:bg-gray-800">
+      <span class="text-base font-semibold text-gray-100">Products
+        <span class="ml-2 text-sm font-normal text-gray-400">({{ products_data|length }} items)</span>
+      </span>
+      <svg class="w-5 h-5 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div x-show="open" x-cloak class="divide-y divide-gray-800">
+      {% for item in products_data %}
+      <a href="/products/{{ item.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
+        <span class="text-gray-200">{{ item.name }}</span>
+        <span class="text-sm text-gray-400 text-right">
+          {% if item.has_states %}
+            <span class="text-green-400">{{ item.filled }} filled</span>
+            <span class="mx-1 text-gray-600">·</span>
+            <span class="text-yellow-400">{{ item.unfilled }} unfilled</span>
+          {% else %}
+            {{ item.total }} units
+          {% endif %}
+        </span>
+      </a>
+      {% else %}
+      <p class="px-5 py-4 text-sm text-gray-500">No products with inventory.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Product Packaging accordion #}
+  <div x-data="{ open: false }" class="bg-gray-900 rounded-2xl overflow-hidden">
+    <button @click="open = !open"
+            class="w-full flex items-center justify-between px-5 py-4 text-left active:bg-gray-800">
+      <span class="text-base font-semibold text-gray-100">Product Packaging
+        <span class="ml-2 text-sm font-normal text-gray-400">({{ packaging_data|length }} items)</span>
+      </span>
+      <svg class="w-5 h-5 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div x-show="open" x-cloak class="divide-y divide-gray-800">
+      {% for item in packaging_data %}
+      <a href="/products/{{ item.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
+        <span class="text-gray-200">{{ item.name }}</span>
+        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}s</span>
+      </a>
+      {% else %}
+      <p class="px-5 py-4 text-sm text-gray-500">No packaging with inventory.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Other accordion #}
+  <div x-data="{ open: false }" class="bg-gray-900 rounded-2xl overflow-hidden">
+    <button @click="open = !open"
+            class="w-full flex items-center justify-between px-5 py-4 text-left active:bg-gray-800">
+      <span class="text-base font-semibold text-gray-100">Other
+        <span class="ml-2 text-sm font-normal text-gray-400">({{ other_data|length }} items)</span>
+      </span>
+      <svg class="w-5 h-5 text-gray-400 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div x-show="open" x-cloak class="divide-y divide-gray-800">
+      {% for item in other_data %}
+      <a href="/products/{{ item.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
+        <span class="text-gray-200">{{ item.name }}</span>
+        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}s</span>
+      </a>
+      {% else %}
+      <p class="px-5 py-4 text-sm text-gray-500">No items with inventory.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Location summary — always visible #}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-gray-800">
+      <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Locations</span>
+    </div>
+    <div class="divide-y divide-gray-800">
+      {% for loc in location_summaries %}
+      <a href="/locations/{{ loc.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
+        <span class="text-gray-200 text-base">{{ loc.name }}</span>
+        <span class="text-sm text-gray-400">{{ loc.item_count }} item{% if loc.item_count != 1 %}s{% endif %}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
 {% endblock %}
