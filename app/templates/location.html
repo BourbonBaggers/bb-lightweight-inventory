@@ -3,7 +3,7 @@
 {% block header %}{{ location.name }}{% endblock %}
 
 {% block header_actions %}
-<button @click="addOpen = true"
+<button @click="$dispatch('open-add-item')"
         class="ml-auto px-4 py-2 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-gray-950 font-semibold rounded-xl text-sm">
   + Add Item
 </button>
@@ -177,6 +177,7 @@
      x-show="addOpen"
      x-cloak
      class="fixed inset-0 z-50 flex flex-col"
+     @open-add-item.window="addOpen = true; search = ''"
      @keydown.escape.window="addOpen = false">
 
   <div class="absolute inset-0 bg-black/70" @click="addOpen = false"></div>
