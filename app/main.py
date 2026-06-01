@@ -9,6 +9,7 @@ from app.routes.api import inventory as api_inventory
 from app.routes.pages import dashboard as page_dashboard
 from app.routes.pages import locations as page_locations
 from app.routes.pages import inventory as page_inventory
+from app.routes.pages import products as page_products
 
 Base.metadata.create_all(bind=engine)
 
@@ -22,3 +23,4 @@ app.include_router(api_inventory.router)
 app.include_router(page_dashboard.router)
 app.include_router(page_locations.router)
 app.include_router(page_inventory.router)
+app.include_router(page_products.router)

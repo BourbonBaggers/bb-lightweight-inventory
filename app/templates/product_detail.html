@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — BB Inventory{% endblock %}
+{% block header %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="space-y-5">
+
+  {# Totals #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    {% if product.has_states %}
+    <div class="flex gap-6">
+      <div>
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Filled</p>
+        <p class="text-2xl font-bold text-green-400">{{ total_filled }}</p>
+        <p class="text-xs text-gray-500">units</p>
+      </div>
+      <div>
+        <p class="text-xs text-gray-500 uppercase tracking-wide">Unfilled</p>
+        <p class="text-2xl font-bold text-yellow-400">{{ total_unfilled }}</p>
+        <p class="text-xs text-gray-500">units</p>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Total across all locations</p>
+    <p class="text-3xl font-bold text-amber-300">{{ total_all }}</p>
+    <p class="text-xs text-gray-500 mt-1">
+      {% if product.category.value == 'product' %}units{% else %}{{ product.packaging_unit_label or 'units' }}s{% endif %}
+    </p>
+    {% endif %}
+  </div>
+
+  {# Per-location breakdown #}
+  {% if location_rows %}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-gray-800">
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">By Location</p>
+    </div>
+    <div class="divide-y divide-gray-800">
+      {% for row in location_rows %}
+      <div class="px-5 py-3 flex items-center justify-between">
+        <div>
+          <span class="text-gray-200">{{ row.location }}</span>
+          {% if row.state %}<span class="ml-2 text-xs text-gray-500 capitalize">{{ row.state }}</span>{% endif %}
+        </div>
+        <div class="text-sm text-gray-400 text-right">
+          {% if row.is_approximate %}~{% endif %}
+          {% if product.category.value == 'product' %}
+            {% if row.cartons_qty %}{{ row.cartons_qty }}c {% endif %}
+            {% if row.cases_qty %}{{ row.cases_qty }}cs {% endif %}
+            {% if row.units_qty %}{{ row.units_qty }}u{% endif %}
+          {% else %}
+            {{ row.units_qty }} {{ row.unit_label }}s
+          {% endif %}
+          <div class="text-xs text-gray-600">{{ row.counted_at.strftime('%b %-d') }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# History #}
+  {% if history_rows %}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-gray-800">
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">History (last 20)</p>
+    </div>
+    <div class="divide-y divide-gray-800">
+      {% for row in history_rows %}
+      <div class="px-5 py-3 flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-300">{{ row.location }}{% if row.state %} · <span class="capitalize text-gray-500">{{ row.state }}</span>{% endif %}</p>
+          <p class="text-xs text-gray-600">{{ row.counted_at.strftime('%b %-d, %Y %H:%M') }}</p>
+        </div>
+        <div class="text-sm text-gray-400 text-right">
+          {% if row.is_approximate %}~{% endif %}
+          {% if product.category.value == 'product' %}
+            {% if row.cartons_qty %}{{ row.cartons_qty }}c {% endif %}
+            {% if row.cases_qty %}{{ row.cases_qty }}cs {% endif %}
+            {% if row.units_qty %}{{ row.units_qty }}u{% endif %}
+            {% if not row.cartons_qty and not row.cases_qty and not row.units_qty %}0{% endif %}
+          {% else %}
+            {{ row.units_qty }} {{ row.unit_label }}s
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
