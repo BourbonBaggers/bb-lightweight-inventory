@@ -146,11 +146,22 @@ def save_count(
     return record
 
 
-def items_not_at_location(db: Session, location_id: int) -> list[Product]:
-    """Active products that have no current (non-zero) count at this location."""
-    present_ids = {c.product_id for c in current_counts_for_location(db, location_id)}
+def items_not_at_location(db: Session, location_id: int) -> list[dict]:
+    """(product, state) pairs with no current non-zero count at this location.
+    For has_states products each state is an independent entry."""
+    present = {(c.product_id, c.state) for c in current_counts_for_location(db, location_id)}
     all_active = db.query(Product).filter(Product.is_active == True).order_by(Product.name).all()  # noqa: E712
-    return [p for p in all_active if p.id not in present_ids]
+
+    result = []
+    for p in all_active:
+        if p.has_states:
+            for state in (State.filled, State.unfilled):
+                if (p.id, state) not in present:
+                    result.append({"id": p.id, "name": p.name, "category": p.category.value, "state": state.value})
+        else:
+            if (p.id, None) not in present:
+                result.append({"id": p.id, "name": p.name, "category": p.category.value, "state": None})
+    return result
 
 
 def history_for_product(

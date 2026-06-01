@@ -45,19 +45,7 @@ def history(product_id: int, db: Session = Depends(get_db)):
 
 @router.get("/not-at-location/{location_id}")
 def not_at_location(location_id: int, db: Session = Depends(get_db)):
-    from app.services.products import _product_dict  # avoid circular at module level
-    from app.routes.api.products import _product_dict as pd
-    products = svc.items_not_at_location(db, location_id)
-    return [
-        {
-            "id": p.id,
-            "name": p.name,
-            "category": p.category,
-            "has_states": p.has_states,
-            "packaging_unit_label": p.packaging_unit_label,
-        }
-        for p in products
-    ]
+    return svc.items_not_at_location(db, location_id)
 
 
 @router.post("/count", status_code=201)

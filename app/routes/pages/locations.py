@@ -52,16 +52,7 @@ def _build_location_context(db: Session, location_id: int) -> dict:
     shipping.sort(key=lambda x: x["name"])
     other.sort(key=lambda x: x["name"])
 
-    not_here = items_not_at_location(db, location_id)
-    add_items = [
-        {
-            "id": p.id,
-            "name": p.name,
-            "category": p.category.value,
-            "has_states": p.has_states,
-        }
-        for p in not_here
-    ]
+    add_items = items_not_at_location(db, location_id)
 
     return {
         "location": location,
