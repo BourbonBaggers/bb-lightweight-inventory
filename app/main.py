@@ -15,6 +15,14 @@ from app.routes.pages import reports as page_reports
 
 Base.metadata.create_all(bind=engine)
 
+def _migrate():
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        conn.execute(text("UPDATE products SET category = 'components' WHERE category = 'product_packaging'"))
+        conn.commit()
+
+_migrate()
+
 app = FastAPI(title="BB Inventory")
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

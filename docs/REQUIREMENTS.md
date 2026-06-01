@@ -77,11 +77,16 @@ set its Inbound count to 0.
 | is_active | boolean | soft delete — hide from active lists without losing history |
 
 **Category: `product`** — sellable finished goods with a carton→case→unit hierarchy.
-**Category: `product_packaging`** — materials that go directly into making products: boxes,
-tuck boxes, bulk fill materials (oak, cherry), rigid setup boxes, etc. No hierarchy. Counted
-in their own natural unit (bag, bundle, box, roll, etc.).
+**Category: `components`** — ingredients and materials that go into making products: shredded
+oak, teabags, sugar, potassium sorbate, tuck boxes, rigid setup boxes, etc. No hierarchy.
+Counted in their own natural unit (bag, bundle, box, roll, etc.).
+**Category: `shipping`** — outbound shipping supplies: cardboard shipping boxes, mailers, etc.
+No hierarchy. Counted in natural unit.
 **Category: `other`** — operational supplies with no direct product relationship: sampling
 bourbon, handle sacks, tape, labels, bags, etc. No hierarchy. Counted in natural unit.
+
+Categories are fixed in code (not user-configurable). Four is the right number for this
+business — adding a dynamic category system would add complexity with no benefit.
 
 `has_states` applies to products that exist in two states at the same location simultaneously:
 - `unfilled` — assembled packaging, not yet stuffed/finished (needs assembly)
@@ -213,8 +218,7 @@ Every major section is one or two taps from anywhere in the app.
 ─────────────────
   Products ▾
     Products
-    Product Packaging
-    Other
+    (all categories shown in one Products List view)
 ─────────────────
   Reports ▾
     Count History

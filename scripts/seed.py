@@ -38,13 +38,13 @@ PRODUCTS = [
     },
     {
         "name": "Tuck Boxes",
-        "category": Category.product_packaging,
+        "category": Category.components,
         "has_states": False,
         "packaging_unit_label": "box",
     },
     {
         "name": "Oak Chips",
-        "category": Category.product_packaging,
+        "category": Category.components,
         "has_states": False,
         "packaging_unit_label": "bag",
     },

@@ -18,7 +18,8 @@ def _build_location_context(db: Session, location_id: int) -> dict:
     counts = current_counts_for_location(db, location_id)
 
     products = []
-    packaging = []
+    components = []
+    shipping = []
     other = []
 
     for c in counts:
@@ -39,13 +40,16 @@ def _build_location_context(db: Session, location_id: int) -> dict:
         }
         if p.category == Category.product:
             products.append(entry)
-        elif p.category == Category.product_packaging:
-            packaging.append(entry)
+        elif p.category == Category.components:
+            components.append(entry)
+        elif p.category == Category.shipping:
+            shipping.append(entry)
         else:
             other.append(entry)
 
     products.sort(key=lambda x: x["name"])
-    packaging.sort(key=lambda x: x["name"])
+    components.sort(key=lambda x: x["name"])
+    shipping.sort(key=lambda x: x["name"])
     other.sort(key=lambda x: x["name"])
 
     not_here = items_not_at_location(db, location_id)
@@ -64,7 +68,8 @@ def _build_location_context(db: Session, location_id: int) -> dict:
         "nav_locations": all_locations,
         "active_location_id": location_id,
         "products": products,
-        "packaging": packaging,
+        "components": components,
+        "shipping": shipping,
         "other": other,
         "add_items": add_items,
     }

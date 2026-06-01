@@ -40,7 +40,7 @@ def current_counts_for_location(db: Session, location_id: int) -> list[Inventory
         .join(
             subq,
             (InventoryCount.product_id == subq.c.product_id)
-            & (InventoryCount.state == subq.c.state)
+            & (func.coalesce(InventoryCount.state, '') == func.coalesce(subq.c.state, ''))
             & (InventoryCount.counted_at == subq.c.max_at)
             & (InventoryCount.location_id == location_id),
         )
@@ -70,7 +70,7 @@ def current_counts_for_product(db: Session, product_id: int) -> list[InventoryCo
         .join(
             subq,
             (InventoryCount.location_id == subq.c.location_id)
-            & (InventoryCount.state == subq.c.state)
+            & (func.coalesce(InventoryCount.state, '') == func.coalesce(subq.c.state, ''))
             & (InventoryCount.counted_at == subq.c.max_at)
             & (InventoryCount.product_id == product_id),
         )

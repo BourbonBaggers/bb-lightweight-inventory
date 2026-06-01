@@ -19,7 +19,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     products = get_all_products(db)
 
     products_data = []
-    packaging_data = []
+    components_data = []
+    shipping_data = []
     other_data = []
 
     for p in products:
@@ -47,8 +48,10 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
 
         if p.category == Category.product:
             products_data.append(item)
-        elif p.category == Category.product_packaging:
-            packaging_data.append(item)
+        elif p.category == Category.components:
+            components_data.append(item)
+        elif p.category == Category.shipping:
+            shipping_data.append(item)
         else:
             other_data.append(item)
 
@@ -64,7 +67,8 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
         "active_page": "dashboard",
         "nav_locations": locations,
         "products_data": products_data,
-        "packaging_data": packaging_data,
+        "components_data": components_data,
+        "shipping_data": shipping_data,
         "other_data": other_data,
         "location_summaries": location_summaries,
     })

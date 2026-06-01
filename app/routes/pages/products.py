@@ -19,14 +19,16 @@ templates = Jinja2Templates(directory="app/templates")
 def products_list(request: Request, db: Session = Depends(get_db)):
     all_products = get_all_products(db)
     products = [p for p in all_products if p.category == Category.product]
-    packaging = [p for p in all_products if p.category == Category.product_packaging]
+    components = [p for p in all_products if p.category == Category.components]
+    shipping = [p for p in all_products if p.category == Category.shipping]
     other = [p for p in all_products if p.category == Category.other]
     return templates.TemplateResponse("products_list.html", {
         "request": request,
         "active_page": "products",
         "nav_locations": get_all_locations(db),
         "products": products,
-        "packaging": packaging,
+        "components": components,
+        "shipping": shipping,
         "other": other,
     })
 

@@ -22,7 +22,8 @@ def product_catalog(request: Request, db: Session = Depends(get_db)):
         "active_page": "product_catalog",
         "nav_locations": get_all_locations(db),
         "products": [p for p in all_products if p.category == Category.product],
-        "packaging": [p for p in all_products if p.category == Category.product_packaging],
+        "components": [p for p in all_products if p.category == Category.components],
+        "shipping": [p for p in all_products if p.category == Category.shipping],
         "other": [p for p in all_products if p.category == Category.other],
     })
 

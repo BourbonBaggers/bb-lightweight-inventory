@@ -16,7 +16,8 @@ class DefaultUnit(str, enum.Enum):
 
 class Category(str, enum.Enum):
     product = "product"
-    product_packaging = "product_packaging"
+    components = "components"
+    shipping = "shipping"
     other = "other"
 
 
