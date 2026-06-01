@@ -51,7 +51,7 @@
       {% for item in components_data %}
       <a href="/products/{{ item.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
         <span class="text-gray-200">{{ item.name }}</span>
-        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}s</span>
+        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}</span>
       </a>
       {% else %}
       <p class="px-5 py-4 text-sm text-gray-500">No components with inventory.</p>
@@ -74,7 +74,7 @@
       {% for item in shipping_data %}
       <a href="/products/{{ item.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
         <span class="text-gray-200">{{ item.name }}</span>
-        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}s</span>
+        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}</span>
       </a>
       {% else %}
       <p class="px-5 py-4 text-sm text-gray-500">No shipping boxes with inventory.</p>
@@ -97,7 +97,7 @@
       {% for item in other_data %}
       <a href="/products/{{ item.id }}" class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
         <span class="text-gray-200">{{ item.name }}</span>
-        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}s</span>
+        <span class="text-sm text-gray-400">{{ item.total }} {{ item.unit_label }}</span>
       </a>
       {% else %}
       <p class="px-5 py-4 text-sm text-gray-500">No items with inventory.</p>

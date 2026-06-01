@@ -84,7 +84,7 @@
               {% if row.units_qty %}{{ row.units_qty }}u{% endif %}
               {% if not row.cartons_qty and not row.cases_qty and not row.units_qty %}0{% endif %}
             {% else %}
-              {{ row.units_qty }} {{ row.unit_label }}s
+              {{ row.units_qty }} {{ row.unit_label }}
             {% endif %}
           </div>
         </div>
