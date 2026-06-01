@@ -101,6 +101,25 @@ Every UI decision must pass this filter:
 - Never skip hooks (--no-verify)
 - .env is gitignored — never commit secrets
 
+### Memory — Update on Every Push
+Before every `git push`, update memory so the next session starts with full context.
+No exceptions — Jay should never have to ask if memory is current.
+
+What to update:
+- `memory/project-state.md` — current build phase, prod status, any new bugs fixed or design
+  decisions made, anything that changed about the running system
+- `memory/feedback-session.md` — any new behavioral feedback or corrections from this session
+- `memory/MEMORY.md` index — add pointers to any new memory files
+
+What counts as a memory-worthy change:
+- A phase completed or a major feature shipped
+- A bug fixed that revealed a non-obvious pattern (document the pattern, not just the fix)
+- A design decision made that isn't obvious from reading the code
+- Any correction Jay gave about how to work on this project
+
+Do not save: ephemeral task state, what files were edited, things already captured in git history
+or REQUIREMENTS.md. Memory is for what future-Claude can't derive from reading the repo.
+
 ### Responses
 - No emojis unless explicitly requested
 - Concise — one sentence of context, then the work
