@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash(*)",
+      "Edit(*)",
+      "Write(*)"
+    ]
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/jaykreusch/Documents/BB Lightweight Inventory/.claude/hooks/post-edit-syntax-check.sh'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/jaykreusch/Documents/BB Lightweight Inventory/.claude/hooks/pre-bash-deletion-guard.sh'"
+          }
+        ]
+      }
+    ]
+  }
+}

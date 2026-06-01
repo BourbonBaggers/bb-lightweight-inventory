@@ -1,0 +1,43 @@
+# Claude Code local files
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# SQLite data volume
+data/
+
+# Coverage
+coverage/
+.coverage
+htmlcov/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo

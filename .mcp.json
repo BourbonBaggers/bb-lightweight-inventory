@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    // Add project-specific MCP servers here.
+    // Example:
+    // "my-server": {
+    //   "command": "node",
+    //   "args": ["./scripts/mcp-server.js"],
+    //   "env": {
+    //     "API_KEY": "${MY_API_KEY}"
+    //   }
+    // }
+  }
+}
