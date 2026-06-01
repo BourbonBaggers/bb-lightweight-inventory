@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — Count Entry{% endblock %}
+{% block header %}
+  {{ product.name }}{% if state %} — <span class="capitalize font-normal text-gray-400">{{ state }}</span>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div x-data="countEntry({{ cpc or 0 }}, {{ upc or 0 }})" class="space-y-5">
+
+  <p class="text-sm text-gray-500">At <span class="text-gray-300 font-medium">{{ location.name }}</span></p>
+
+  {# Last count display #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    {% if existing %}
+    <p class="text-sm text-gray-400">
+      Last counted {{ existing.counted_at.strftime('%b %-d, %Y') }}:
+      {% if existing.cartons_qty %} {{ existing.cartons_qty }} carton{% if existing.cartons_qty != 1 %}s{% endif %}{% endif %}
+      {% if existing.cartons_qty and (existing.cases_qty or existing.units_qty) %} · {% endif %}
+      {% if existing.cases_qty %} {{ existing.cases_qty }} case{% if existing.cases_qty != 1 %}s{% endif %}{% endif %}
+      {% if existing.cases_qty and existing.units_qty %} · {% endif %}
+      {% if existing.units_qty %} {{ existing.units_qty }} unit{% if existing.units_qty != 1 %}s{% endif %}{% endif %}
+      {% if not existing.cartons_qty and not existing.cases_qty and not existing.units_qty %}0 units{% endif %}
+    </p>
+    {% else %}
+    <p class="text-sm text-gray-500">No count recorded yet.</p>
+    {% endif %}
+  </div>
+
+  {# Input fields #}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden divide-y divide-gray-800">
+
+    {% if product.category.value == 'product' %}
+    {# Three-field product entry #}
+    <div class="flex items-center px-5 py-4">
+      <label class="w-24 text-gray-400 text-base flex-shrink-0">Cartons</label>
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+             x-model.number="cartons"
+             @input="recalc()"
+             class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
+    </div>
+    <div class="flex items-center px-5 py-4">
+      <label class="w-24 text-gray-400 text-base flex-shrink-0">Cases</label>
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+             x-model.number="cases"
+             @input="recalc()"
+             class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
+    </div>
+    <div class="flex items-center px-5 py-4">
+      <label class="w-24 text-gray-400 text-base flex-shrink-0">Units</label>
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+             x-model.number="units"
+             @input="recalc()"
+             class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
+    </div>
+    {# Live conversion #}
+    <div class="px-5 py-3 bg-gray-800/50">
+      <p class="text-sm text-gray-400">= <span class="text-amber-300 font-semibold" x-text="totalUnits"></span> total units</p>
+    </div>
+
+    {% else %}
+    {# Single qty field for packaging / other #}
+    <div class="flex items-center px-5 py-4">
+      <label class="w-16 text-gray-400 text-base flex-shrink-0">Qty</label>
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+             x-model.number="units"
+             class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
+      <span class="ml-3 text-gray-400 flex-shrink-0">{{ product.packaging_unit_label or 'units' }}s</span>
+    </div>
+    {% endif %}
+
+  </div>
+
+  {# Approximate toggle #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between">
+    <span class="text-gray-300 text-base">~ Estimated count</span>
+    <button @click="approximate = !approximate"
+            class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors"
+            :class="approximate ? 'bg-amber-500' : 'bg-gray-700'">
+      <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+            :class="approximate ? 'translate-x-6' : 'translate-x-1'"></span>
+    </button>
+  </div>
+
+  {# Notes field #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    <input type="text" x-model="notes"
+           placeholder="e.g., one carton is damaged, mixed old/new batch"
+           class="w-full bg-gray-800 text-gray-100 placeholder-gray-500 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+  </div>
+
+  {# Inbound fields #}
+  {% if location.is_inbound %}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden divide-y divide-gray-800">
+    <div class="px-5 py-3">
+      <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Carrier</p>
+    </div>
+    <div class="px-5 py-3">
+      <select x-model="carrier"
+              class="w-full bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+        <option value="">— Select carrier —</option>
+        <option value="UPS">UPS</option>
+        <option value="FedEx">FedEx</option>
+        <option value="USPS">USPS</option>
+        <option value="DHL">DHL</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="px-5 py-4">
+      <input type="text" x-model="trackingNumber"
+             placeholder="Tracking number"
+             class="w-full bg-gray-800 text-gray-100 placeholder-gray-500 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+    </div>
+  </div>
+  {% endif %}
+
+  {# Error message #}
+  <div x-show="error" x-cloak class="bg-red-900/40 border border-red-700 rounded-xl px-4 py-3 text-red-300 text-sm" x-text="error"></div>
+
+  {# Save button #}
+  <button @click="save()"
+          :disabled="saving"
+          class="w-full py-4 bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:opacity-50 text-gray-950 text-lg font-bold rounded-2xl transition-colors">
+    <span x-show="!saving">Save</span>
+    <span x-show="saving" x-cloak>Saving…</span>
+  </button>
+
+</div>
+
+<script>
+function countEntry(cpc, upc) {
+  return {
+    cartons: 0,
+    cases: 0,
+    units: 0,
+    totalUnits: 0,
+    approximate: false,
+    notes: '',
+    carrier: '',
+    trackingNumber: '',
+    saving: false,
+    error: '',
+
+    recalc() {
+      if (cpc && upc) {
+        this.totalUnits = (this.cartons * cpc * upc) + (this.cases * upc) + this.units;
+      } else {
+        this.totalUnits = this.units;
+      }
+    },
+
+    async save() {
+      this.saving = true;
+      this.error = '';
+      try {
+        const body = {
+          product_id: {{ product.id }},
+          location_id: {{ location.id }},
+          state: {{ ('"' ~ state ~ '"') if state else 'null' }},
+          cartons_qty: this.cartons || 0,
+          cases_qty: this.cases || 0,
+          units_qty: this.units || 0,
+          is_approximate: this.approximate,
+          notes: this.notes || null,
+          carrier: this.carrier || null,
+          tracking_number: this.trackingNumber || null,
+        };
+        const res = await fetch('/api/inventory/count', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          this.error = err.detail || 'Save failed';
+          this.saving = false;
+          return;
+        }
+        window.location.href = '/locations/{{ location.id }}';
+      } catch (e) {
+        this.error = 'Network error — try again';
+        this.saving = false;
+      }
+    },
+  };
+}
+</script>
+{% endblock %}

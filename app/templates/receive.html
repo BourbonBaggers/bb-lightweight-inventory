@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Receive — {{ product.name }}{% endblock %}
+{% block header %}
+  Receive — {{ product.name }}{% if state %} <span class="font-normal text-gray-400 capitalize">({{ state }})</span>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div x-data="receiveFlow({{ inbound.cartons_qty or 0 }}, {{ inbound.cases_qty or 0 }}, {{ inbound.units_qty or 0 }})"
+     class="space-y-5">
+
+  {# Inbound summary #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4 space-y-1">
+    <p class="text-sm text-gray-500 uppercase tracking-wide text-xs font-semibold">Inbound</p>
+    <p class="text-gray-200">
+      {% if inbound.cartons_qty %} {{ inbound.cartons_qty }} carton{% if inbound.cartons_qty != 1 %}s{% endif %}{% endif %}
+      {% if inbound.cases_qty %} {{ inbound.cases_qty }} case{% if inbound.cases_qty != 1 %}s{% endif %}{% endif %}
+      {% if inbound.units_qty %} {{ inbound.units_qty }} unit{% if inbound.units_qty != 1 %}s{% endif %}{% endif %}
+    </p>
+    {% if inbound.carrier %}
+    <p class="text-sm text-gray-500">
+      {{ inbound.carrier }}{% if inbound.tracking_number %} · <span class="text-blue-400">{{ inbound.tracking_number }}</span>{% endif %}
+    </p>
+    {% endif %}
+  </div>
+
+  {# Received quantity + unit #}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden divide-y divide-gray-800">
+    <div class="px-5 py-3">
+      <p class="text-sm font-semibold text-gray-400">How many did you receive?</p>
+    </div>
+    <div class="flex items-center gap-3 px-5 py-4">
+      <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+             x-model.number="receivedQty"
+             @input="recalc()"
+             class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-2xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+      <select x-model="receivedUnit"
+              class="bg-gray-800 text-gray-100 rounded-xl px-3 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+        <option value="carton">Cartons</option>
+        <option value="case">Cases</option>
+        <option value="unit">Units</option>
+      </select>
+    </div>
+  </div>
+
+  {# Distribute to locations #}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden">
+    <div class="px-5 py-3 border-b border-gray-800 flex items-center justify-between">
+      <p class="text-sm font-semibold text-gray-400">Distribute to locations</p>
+      <p class="text-sm text-gray-500">
+        Remaining: <span class="font-semibold" :class="remaining === 0 ? 'text-green-400' : 'text-amber-300'" x-text="remaining"></span>
+      </p>
+    </div>
+    <div class="divide-y divide-gray-800">
+      {% for loc in real_locations %}
+      <div class="flex items-center justify-between px-5 py-4">
+        <span class="text-gray-200 text-base">{{ loc.name }}</span>
+        <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
+               x-model.number="dist[{{ loc.id }}]"
+               @input="recalc()"
+               class="w-28 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Error #}
+  <div x-show="error" x-cloak class="bg-red-900/40 border border-red-700 rounded-xl px-4 py-3 text-red-300 text-sm" x-text="error"></div>
+
+  {# Confirm button #}
+  <button @click="confirm()"
+          :disabled="remaining !== 0 || saving"
+          class="w-full py-4 bg-amber-500 active:bg-amber-600 disabled:opacity-40 disabled:cursor-not-allowed text-gray-950 text-lg font-bold rounded-2xl transition-colors">
+    <span x-show="!saving">Confirm Receipt</span>
+    <span x-show="saving" x-cloak>Saving…</span>
+  </button>
+
+</div>
+
+<script>
+function receiveFlow(inboundCartons, inboundCases, inboundUnits) {
+  const locationIds = [{% for loc in real_locations %}{{ loc.id }}{% if not loop.last %}, {% endif %}{% endfor %}];
+  const dist = {};
+  locationIds.forEach(id => dist[id] = 0);
+
+  return {
+    receivedQty: inboundCartons || inboundCases || inboundUnits,
+    receivedUnit: inboundCartons ? 'carton' : inboundCases ? 'case' : 'unit',
+    dist,
+    remaining: inboundCartons || inboundCases || inboundUnits,
+    saving: false,
+    error: '',
+
+    recalc() {
+      const assigned = Object.values(this.dist).reduce((s, v) => s + (Number(v) || 0), 0);
+      this.remaining = (Number(this.receivedQty) || 0) - assigned;
+    },
+
+    async confirm() {
+      this.saving = true;
+      this.error = '';
+      try {
+        const res = await fetch('/api/inventory/receive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inbound_count_id: {{ inbound.id }},
+            received_qty: Number(this.receivedQty),
+            received_unit: this.receivedUnit,
+            distribution: Object.fromEntries(
+              Object.entries(this.dist).map(([k, v]) => [Number(k), Number(v) || 0])
+            ),
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          this.error = err.detail || 'Receive failed';
+          this.saving = false;
+          return;
+        }
+        window.location.href = '/locations/{{ inbound.location_id }}';
+      } catch (e) {
+        this.error = 'Network error — try again';
+        this.saving = false;
+      }
+    },
+  };
+}
+</script>
+{% endblock %}
