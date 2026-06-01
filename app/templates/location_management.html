@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Manage Locations — BB Inventory{% endblock %}
+{% block header %}Manage Locations{% endblock %}
+{% block header_actions %}
+<a href="/settings/locations/new"
+   class="ml-auto px-4 py-2 bg-amber-500 active:bg-amber-600 text-gray-950 font-semibold rounded-xl text-sm">
+  + New
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="bg-gray-900 rounded-2xl overflow-hidden">
+  <div class="divide-y divide-gray-800">
+    {% for loc in locations %}
+    <a href="/settings/locations/{{ loc.id }}/edit"
+       class="flex items-center justify-between px-5 py-4 active:bg-gray-800">
+      <div>
+        <span class="text-gray-200">{{ loc.name }}</span>
+        {% if loc.is_inbound %}
+        <span class="ml-2 text-xs bg-blue-900/50 text-blue-400 px-2 py-0.5 rounded-full">Inbound</span>
+        {% endif %}
+      </div>
+      <span class="text-sm text-gray-500 capitalize">{{ loc.default_unit.value }}</span>
+    </a>
+    {% else %}
+    <p class="px-5 py-4 text-sm text-gray-500">No locations yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

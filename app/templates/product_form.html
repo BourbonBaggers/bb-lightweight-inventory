@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% block title %}{% if product %}Edit {{ product.name }}{% else %}New Product{% endif %} — BB Inventory{% endblock %}
+{% block header %}{% if product %}Edit Product{% else %}New Product{% endif %}{% endblock %}
+
+{% block content %}
+<div x-data="productForm()" class="space-y-5">
+
+  {# Name #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Name</label>
+    <input type="text" x-model="name"
+           placeholder="Product name"
+           class="w-full bg-gray-800 text-gray-100 placeholder-gray-500 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+  </div>
+
+  {# Category #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Category</label>
+    <div class="grid grid-cols-3 gap-2">
+      <button @click="category = 'product'" type="button"
+              :class="category === 'product' ? 'bg-amber-500 text-gray-950' : 'bg-gray-800 text-gray-300'"
+              class="py-3 rounded-xl text-sm font-medium active:opacity-80">Product</button>
+      <button @click="category = 'product_packaging'" type="button"
+              :class="category === 'product_packaging' ? 'bg-amber-500 text-gray-950' : 'bg-gray-800 text-gray-300'"
+              class="py-3 rounded-xl text-sm font-medium active:opacity-80">Packaging</button>
+      <button @click="category = 'other'" type="button"
+              :class="category === 'other' ? 'bg-amber-500 text-gray-950' : 'bg-gray-800 text-gray-300'"
+              class="py-3 rounded-xl text-sm font-medium active:opacity-80">Other</button>
+    </div>
+  </div>
+
+  {# Product-specific fields #}
+  <div x-show="category === 'product'" x-cloak class="space-y-4">
+
+    {# Has states toggle #}
+    <div class="bg-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between">
+      <div>
+        <p class="text-gray-300">Filled / Unfilled states</p>
+        <p class="text-xs text-gray-500 mt-0.5">e.g. Founders Flight — can be assembled but unfilled</p>
+      </div>
+      <button @click="hasStates = !hasStates" type="button"
+              class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors ml-4 flex-shrink-0"
+              :class="hasStates ? 'bg-amber-500' : 'bg-gray-700'">
+        <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+              :class="hasStates ? 'translate-x-6' : 'translate-x-1'"></span>
+      </button>
+    </div>
+
+    {# Hierarchy — no states #}
+    <div x-show="!hasStates" x-cloak class="bg-gray-900 rounded-2xl overflow-hidden divide-y divide-gray-800">
+      <div class="px-5 py-3">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Hierarchy</p>
+      </div>
+      <div class="flex items-center px-5 py-4">
+        <label class="w-40 text-gray-400 text-sm">Cases per carton</label>
+        <input type="number" min="1" inputmode="numeric" x-model.number="casesPerCarton"
+               class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+      </div>
+      <div class="flex items-center px-5 py-4">
+        <label class="w-40 text-gray-400 text-sm">Units per case</label>
+        <input type="number" min="1" inputmode="numeric" x-model.number="unitsPerCase"
+               class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+      </div>
+    </div>
+
+    {# Hierarchy — with states #}
+    <div x-show="hasStates" x-cloak class="space-y-3">
+      <div class="bg-gray-900 rounded-2xl overflow-hidden divide-y divide-gray-800">
+        <div class="px-5 py-3 bg-green-900/20">
+          <p class="text-xs font-semibold text-green-400 uppercase tracking-wider">Filled hierarchy</p>
+        </div>
+        <div class="flex items-center px-5 py-4">
+          <label class="w-40 text-gray-400 text-sm">Cases per carton</label>
+          <input type="number" min="1" inputmode="numeric" x-model.number="filledCpc"
+                 class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div class="flex items-center px-5 py-4">
+          <label class="w-40 text-gray-400 text-sm">Units per case</label>
+          <input type="number" min="1" inputmode="numeric" x-model.number="filledUpc"
+                 class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+      </div>
+      <div class="bg-gray-900 rounded-2xl overflow-hidden divide-y divide-gray-800">
+        <div class="px-5 py-3 bg-yellow-900/20">
+          <p class="text-xs font-semibold text-yellow-400 uppercase tracking-wider">Unfilled hierarchy</p>
+        </div>
+        <div class="flex items-center px-5 py-4">
+          <label class="w-40 text-gray-400 text-sm">Cases per carton</label>
+          <input type="number" min="1" inputmode="numeric" x-model.number="unfilledCpc"
+                 class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div class="flex items-center px-5 py-4">
+          <label class="w-40 text-gray-400 text-sm">Units per case</label>
+          <input type="number" min="1" inputmode="numeric" x-model.number="unfilledUpc"
+                 class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-lg font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Packaging / Other unit label #}
+  <div x-show="category !== 'product'" x-cloak class="bg-gray-900 rounded-2xl px-5 py-4">
+    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Unit Label</label>
+    <input type="text" x-model="unitLabel"
+           placeholder="e.g. bag, bundle, roll, box"
+           class="w-full bg-gray-800 text-gray-100 placeholder-gray-500 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+  </div>
+
+  {# Initial inventory — new items only #}
+  {% if not product %}
+  <div class="bg-gray-900 rounded-2xl overflow-hidden">
+    <button @click="showInitial = !showInitial" type="button"
+            class="w-full flex items-center justify-between px-5 py-4 text-left active:bg-gray-800">
+      <span class="text-sm font-semibold text-gray-400">Initial Inventory <span class="font-normal text-gray-600">(optional)</span></span>
+      <svg class="w-4 h-4 text-gray-500 transition-transform" :class="showInitial ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div x-show="showInitial" x-cloak class="divide-y divide-gray-800">
+      {% for loc in locations %}
+      <div class="px-5 py-3">
+        <p class="text-sm text-gray-400 mb-2">{{ loc.name }}</p>
+        <div x-show="category === 'product' && hasStates" x-cloak class="space-y-2">
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-green-400 w-16">Filled</span>
+            <input type="number" min="0" inputmode="numeric"
+                   x-model.number="initInv[{{ loc.id }}].filled_qty"
+                   class="flex-1 bg-gray-800 text-gray-100 rounded-lg px-3 py-2 text-base font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+            <select x-model="initInv[{{ loc.id }}].filled_unit"
+                    class="bg-gray-800 text-gray-100 rounded-lg px-2 py-2 text-sm outline-none">
+              <option value="unit">units</option>
+              <option value="case">cases</option>
+              <option value="carton">cartons</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-yellow-400 w-16">Unfilled</span>
+            <input type="number" min="0" inputmode="numeric"
+                   x-model.number="initInv[{{ loc.id }}].unfilled_qty"
+                   class="flex-1 bg-gray-800 text-gray-100 rounded-lg px-3 py-2 text-base font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+            <select x-model="initInv[{{ loc.id }}].unfilled_unit"
+                    class="bg-gray-800 text-gray-100 rounded-lg px-2 py-2 text-sm outline-none">
+              <option value="unit">units</option>
+              <option value="case">cases</option>
+              <option value="carton">cartons</option>
+            </select>
+          </div>
+        </div>
+        <div x-show="!(category === 'product' && hasStates)" x-cloak class="flex items-center gap-3">
+          <input type="number" min="0" inputmode="numeric"
+                 x-model.number="initInv[{{ loc.id }}].qty"
+                 class="flex-1 bg-gray-800 text-gray-100 rounded-lg px-3 py-2 text-base font-mono text-right outline-none focus:ring-2 focus:ring-amber-500">
+          <span x-show="category !== 'product'" x-cloak class="text-sm text-gray-500" x-text="unitLabel || 'units'"></span>
+          <select x-show="category === 'product'" x-cloak
+                  x-model="initInv[{{ loc.id }}].unit"
+                  class="bg-gray-800 text-gray-100 rounded-lg px-2 py-2 text-sm outline-none">
+            <option value="unit">units</option>
+            <option value="case">cases</option>
+            <option value="carton">cartons</option>
+          </select>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Error #}
+  <div x-show="error" x-cloak class="bg-red-900/40 border border-red-700 rounded-xl px-4 py-3 text-red-300 text-sm" x-text="error"></div>
+
+  {# Action buttons #}
+  <div class="space-y-3">
+    <button @click="save()" :disabled="saving"
+            class="w-full py-4 bg-amber-500 active:bg-amber-600 disabled:opacity-50 text-gray-950 text-lg font-bold rounded-2xl">
+      <span x-show="!saving">Save</span>
+      <span x-show="saving" x-cloak>Saving…</span>
+    </button>
+    <a href="/settings/products"
+       class="block w-full py-4 bg-gray-800 active:bg-gray-700 text-gray-300 text-lg font-semibold rounded-2xl text-center">
+      Cancel
+    </a>
+    {% if product %}
+    <button @click="deactivate()" :disabled="saving"
+            class="w-full py-4 bg-red-900/40 active:bg-red-900/60 text-red-400 text-base font-semibold rounded-2xl border border-red-800">
+      {% if product.is_active %}Deactivate{% else %}Already Inactive{% endif %}
+    </button>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function productForm() {
+  {% if product %}
+  const existing = {
+    name: {{ product.name | tojson }},
+    category: {{ product.category.value | tojson }},
+    hasStates: {{ 'true' if product.has_states else 'false' }},
+    casesPerCarton: {{ product.cases_per_carton or 0 }},
+    unitsPerCase: {{ product.units_per_case or 0 }},
+    filledCpc: {{ product.filled_cases_per_carton or 0 }},
+    filledUpc: {{ product.filled_units_per_case or 0 }},
+    unfilledCpc: {{ product.unfilled_cases_per_carton or 0 }},
+    unfilledUpc: {{ product.unfilled_units_per_case or 0 }},
+    unitLabel: {{ (product.packaging_unit_label or '') | tojson }},
+  };
+  {% else %}
+  const existing = null;
+  {% endif %}
+
+  const locationIds = [{% for loc in locations %}{{ loc.id }}{% if not loop.last %},{% endif %}{% endfor %}];
+  const initInv = {};
+  locationIds.forEach(id => {
+    initInv[id] = { qty: 0, unit: 'unit', filled_qty: 0, filled_unit: 'unit', unfilled_qty: 0, unfilled_unit: 'unit' };
+  });
+
+  return {
+    name: existing?.name || '',
+    category: existing?.category || 'product',
+    hasStates: existing?.hasStates || false,
+    casesPerCarton: existing?.casesPerCarton || null,
+    unitsPerCase: existing?.unitsPerCase || null,
+    filledCpc: existing?.filledCpc || null,
+    filledUpc: existing?.filledUpc || null,
+    unfilledCpc: existing?.unfilledCpc || null,
+    unfilledUpc: existing?.unfilledUpc || null,
+    unitLabel: existing?.unitLabel || '',
+    showInitial: false,
+    initInv,
+    saving: false,
+    error: '',
+
+    buildBody() {
+      const body = {
+        name: this.name,
+        category: this.category,
+        has_states: this.hasStates,
+        is_active: true,
+      };
+      if (this.category === 'product') {
+        if (this.hasStates) {
+          body.filled_cases_per_carton = this.filledCpc || null;
+          body.filled_units_per_case = this.filledUpc || null;
+          body.unfilled_cases_per_carton = this.unfilledCpc || null;
+          body.unfilled_units_per_case = this.unfilledUpc || null;
+        } else {
+          body.cases_per_carton = this.casesPerCarton || null;
+          body.units_per_case = this.unitsPerCase || null;
+        }
+      } else {
+        body.packaging_unit_label = this.unitLabel || null;
+      }
+      return body;
+    },
+
+    buildInitialInventory() {
+      const entries = [];
+      for (const [locId, vals] of Object.entries(this.initInv)) {
+        if (this.category === 'product' && this.hasStates) {
+          if (vals.filled_qty > 0) {
+            entries.push({
+              location_id: Number(locId),
+              state: 'filled',
+              cartons_qty: vals.filled_unit === 'carton' ? vals.filled_qty : 0,
+              cases_qty: vals.filled_unit === 'case' ? vals.filled_qty : 0,
+              units_qty: vals.filled_unit === 'unit' ? vals.filled_qty : 0,
+            });
+          }
+          if (vals.unfilled_qty > 0) {
+            entries.push({
+              location_id: Number(locId),
+              state: 'unfilled',
+              cartons_qty: vals.unfilled_unit === 'carton' ? vals.unfilled_qty : 0,
+              cases_qty: vals.unfilled_unit === 'case' ? vals.unfilled_qty : 0,
+              units_qty: vals.unfilled_unit === 'unit' ? vals.unfilled_qty : 0,
+            });
+          }
+        } else {
+          if (vals.qty > 0) {
+            const entry = { location_id: Number(locId), state: null };
+            if (this.category === 'product') {
+              entry.cartons_qty = vals.unit === 'carton' ? vals.qty : 0;
+              entry.cases_qty = vals.unit === 'case' ? vals.qty : 0;
+              entry.units_qty = vals.unit === 'unit' ? vals.qty : 0;
+            } else {
+              entry.units_qty = vals.qty;
+            }
+            entries.push(entry);
+          }
+        }
+      }
+      return entries;
+    },
+
+    async save() {
+      this.saving = true;
+      this.error = '';
+      try {
+        const body = this.buildBody();
+        {% if not product %}
+        body.initial_inventory = this.buildInitialInventory();
+        {% endif %}
+
+        const url = {% if product %}'/api/products/{{ product.id }}'{% else %}'/api/products'{% endif %};
+        const method = {% if product %}'PUT'{% else %}'POST'{% endif %};
+
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          this.error = err.detail || 'Save failed';
+          this.saving = false;
+          return;
+        }
+        {% if product %}
+        window.location.href = '/settings/products';
+        {% else %}
+        const data = await res.json();
+        const returnLoc = {{ return_location_id or 'null' }};
+        window.location.href = returnLoc ? `/count/${data.id}/${returnLoc}` : '/settings/products';
+        {% endif %}
+      } catch (e) {
+        this.error = 'Network error — try again';
+        this.saving = false;
+      }
+    },
+
+    async deactivate() {
+      {% if product %}
+      if (!confirm('Deactivate {{ product.name }}? It will be hidden from all views.')) return;
+      this.saving = true;
+      this.error = '';
+      try {
+        const res = await fetch('/api/products/{{ product.id }}', { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json();
+          this.error = err.detail || 'Deactivate failed';
+          this.saving = false;
+          return;
+        }
+        window.location.href = '/settings/products';
+      } catch (e) {
+        this.error = 'Network error — try again';
+        this.saving = false;
+      }
+      {% endif %}
+    },
+  };
+}
+</script>
+{% endblock %}

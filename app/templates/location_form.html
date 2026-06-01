@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{% if location %}Edit {{ location.name }}{% else %}New Location{% endif %} — BB Inventory{% endblock %}
+{% block header %}{% if location %}Edit Location{% else %}New Location{% endif %}{% endblock %}
+
+{% block content %}
+<div x-data="locationForm()" class="space-y-5">
+
+  {# Name #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Name</label>
+    <input type="text" x-model="name"
+           placeholder="Location name"
+           class="w-full bg-gray-800 text-gray-100 placeholder-gray-500 rounded-xl px-4 py-3 text-base outline-none focus:ring-2 focus:ring-amber-500">
+  </div>
+
+  {# Default unit #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4">
+    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Default counting unit</label>
+    <div class="grid grid-cols-3 gap-2">
+      <button @click="defaultUnit = 'carton'" type="button"
+              :class="defaultUnit === 'carton' ? 'bg-amber-500 text-gray-950' : 'bg-gray-800 text-gray-300'"
+              class="py-3 rounded-xl text-sm font-medium active:opacity-80">Carton</button>
+      <button @click="defaultUnit = 'case'" type="button"
+              :class="defaultUnit === 'case' ? 'bg-amber-500 text-gray-950' : 'bg-gray-800 text-gray-300'"
+              class="py-3 rounded-xl text-sm font-medium active:opacity-80">Case</button>
+      <button @click="defaultUnit = 'unit'" type="button"
+              :class="defaultUnit === 'unit' ? 'bg-amber-500 text-gray-950' : 'bg-gray-800 text-gray-300'"
+              class="py-3 rounded-xl text-sm font-medium active:opacity-80">Unit</button>
+    </div>
+  </div>
+
+  {# Inbound toggle #}
+  <div class="bg-gray-900 rounded-2xl px-5 py-4 flex items-center justify-between">
+    <div>
+      <p class="text-gray-300">Inbound location</p>
+      <p class="text-xs text-gray-500 mt-0.5">Shows carrier + tracking fields and Receive button</p>
+    </div>
+    <button @click="isInbound = !isInbound" type="button"
+            class="relative inline-flex h-7 w-12 items-center rounded-full transition-colors ml-4 flex-shrink-0"
+            :class="isInbound ? 'bg-amber-500' : 'bg-gray-700'">
+      <span class="inline-block h-5 w-5 transform rounded-full bg-white transition-transform"
+            :class="isInbound ? 'translate-x-6' : 'translate-x-1'"></span>
+    </button>
+  </div>
+
+  {# Error #}
+  <div x-show="error" x-cloak class="bg-red-900/40 border border-red-700 rounded-xl px-4 py-3 text-red-300 text-sm" x-text="error"></div>
+
+  {# Actions #}
+  <div class="space-y-3">
+    <button @click="save()" :disabled="saving"
+            class="w-full py-4 bg-amber-500 active:bg-amber-600 disabled:opacity-50 text-gray-950 text-lg font-bold rounded-2xl">
+      <span x-show="!saving">Save</span>
+      <span x-show="saving" x-cloak>Saving…</span>
+    </button>
+    <a href="/settings/locations"
+       class="block w-full py-4 bg-gray-800 active:bg-gray-700 text-gray-300 text-lg font-semibold rounded-2xl text-center">
+      Cancel
+    </a>
+    {% if location %}
+    <button @click="deleteLocation()" :disabled="saving"
+            class="w-full py-4 bg-red-900/40 active:bg-red-900/60 text-red-400 text-base font-semibold rounded-2xl border border-red-800">
+      Delete Location
+    </button>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function locationForm() {
+  return {
+    name: {{ (location.name if location else '') | tojson }},
+    defaultUnit: {{ (location.default_unit.value if location else 'unit') | tojson }},
+    isInbound: {{ 'true' if location and location.is_inbound else 'false' }},
+    saving: false,
+    error: '',
+
+    async save() {
+      this.saving = true;
+      this.error = '';
+      try {
+        const url = {% if location %}'/api/locations/{{ location.id }}'{% else %}'/api/locations'{% endif %};
+        const method = {% if location %}'PUT'{% else %}'POST'{% endif %};
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: this.name,
+            default_unit: this.defaultUnit,
+            is_inbound: this.isInbound,
+          }),
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          this.error = err.detail || 'Save failed';
+          this.saving = false;
+          return;
+        }
+        window.location.href = '/settings/locations';
+      } catch (e) {
+        this.error = 'Network error — try again';
+        this.saving = false;
+      }
+    },
+
+    async deleteLocation() {
+      {% if location %}
+      if (!confirm('Delete {{ location.name }}? This cannot be undone if there are no inventory counts.')) return;
+      this.saving = true;
+      this.error = '';
+      try {
+        const res = await fetch('/api/locations/{{ location.id }}', { method: 'DELETE' });
+        if (!res.ok) {
+          const err = await res.json();
+          this.error = err.detail || 'Delete failed';
+          this.saving = false;
+          return;
+        }
+        window.location.href = '/settings/locations';
+      } catch (e) {
+        this.error = 'Network error — try again';
+        this.saving = false;
+      }
+      {% endif %}
+    },
+  };
+}
+</script>
+{% endblock %}
