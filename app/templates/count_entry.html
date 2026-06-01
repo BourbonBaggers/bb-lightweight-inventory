@@ -36,6 +36,7 @@
       <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
              x-model.number="cartons"
              @input="recalc()"
+             @focus="$el.select()"
              class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
     </div>
     <div class="flex items-center px-5 py-4">
@@ -43,6 +44,7 @@
       <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
              x-model.number="cases"
              @input="recalc()"
+             @focus="$el.select()"
              class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
     </div>
     <div class="flex items-center px-5 py-4">
@@ -50,6 +52,7 @@
       <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
              x-model.number="units"
              @input="recalc()"
+             @focus="$el.select()"
              class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
     </div>
     {# Live conversion #}
@@ -63,6 +66,7 @@
       <label class="w-16 text-gray-400 text-base flex-shrink-0">Qty</label>
       <input type="number" min="0" inputmode="numeric" pattern="[0-9]*"
              x-model.number="units"
+             @focus="$el.select()"
              class="flex-1 bg-gray-800 text-gray-100 rounded-xl px-4 py-3 text-xl font-mono text-right outline-none focus:ring-2 focus:ring-amber-500 w-full">
       <span class="ml-3 text-gray-400 flex-shrink-0">{{ product.packaging_unit_label or 'units' }}s</span>
     </div>
