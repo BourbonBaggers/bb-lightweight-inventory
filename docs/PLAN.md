@@ -434,8 +434,8 @@ Update this table as phases complete. Use commit hash from `git log --oneline`.
 | 11 | Settings: Product Catalog | done | 7ab22b9 |
 | 12 | Settings: Location Mgmt | done | 7ab22b9 |
 | 13 | Count History Report | done | 9ef3142 |
-| 14 | Mobile Polish | pending | — |
-| 15 | Production Deploy | pending | — |
+| 14 | Mobile Polish | done | 0fdbe33 |
+| 15 | Production Deploy | done | — |
 
 ---
 
