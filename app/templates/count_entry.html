@@ -159,7 +159,7 @@ function countEntry(cpc, upc) {
         const body = {
           product_id: {{ product.id }},
           location_id: {{ location.id }},
-          state: {{ ('"' ~ state ~ '"') if state else 'null' }},
+          state: {{ state | tojson }},
           cartons_qty: this.cartons || 0,
           cases_qty: this.cases || 0,
           units_qty: this.units || 0,
