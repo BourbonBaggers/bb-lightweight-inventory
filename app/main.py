@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
 from app.database import engine, Base
+import app.models  # noqa: F401 — registers models with Base before create_all
 
 Base.metadata.create_all(bind=engine)
 
