@@ -419,21 +419,21 @@ Update this table as phases complete. Use commit hash from `git log --oneline`.
 
 | Phase | Name | Status | Commit |
 |---|---|---|---|
-| Git Setup | Init repo | pending | — |
-| 0 | Scaffolding | pending | — |
-| 1 | Data Models | pending | — |
-| 2 | Seed Data | pending | — |
-| 3 | Service Layer | pending | — |
-| 4 | REST API Routes | pending | — |
-| 5 | Base Template + PWA | pending | — |
-| 6 | Dashboard | pending | — |
-| 7 | Location View | pending | — |
-| 8 | Count Entry | pending | — |
-| 9 | Receive Inventory | pending | — |
-| 10 | Products List + Detail | pending | — |
-| 11 | Settings: Product Catalog | pending | — |
-| 12 | Settings: Location Mgmt | pending | — |
-| 13 | Count History Report | pending | — |
+| Git Setup | Init repo | done | d877c20 |
+| 0 | Scaffolding | done | b0d71d7 |
+| 1 | Data Models | done | 48d3aab |
+| 2 | Seed Data | done | de02288 |
+| 3 | Service Layer | done | 0496b88 |
+| 4 | REST API Routes | done | 2b7f353 |
+| 5 | Base Template + PWA | done | 042e489 |
+| 6 | Dashboard | done | 43f2146 |
+| 7 | Location View | done | 2403c11 |
+| 8 | Count Entry | done | 7caff7e |
+| 9 | Receive Inventory | done | 7caff7e |
+| 10 | Products List + Detail | done | d71217b |
+| 11 | Settings: Product Catalog | done | 7ab22b9 |
+| 12 | Settings: Location Mgmt | done | 7ab22b9 |
+| 13 | Count History Report | done | 9ef3142 |
 | 14 | Mobile Polish | pending | — |
 | 15 | Production Deploy | pending | — |
 
