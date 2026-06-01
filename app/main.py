@@ -11,6 +11,7 @@ from app.routes.pages import locations as page_locations
 from app.routes.pages import inventory as page_inventory
 from app.routes.pages import products as page_products
 from app.routes.pages import settings as page_settings
+from app.routes.pages import reports as page_reports
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,3 +27,4 @@ app.include_router(page_locations.router)
 app.include_router(page_inventory.router)
 app.include_router(page_products.router)
 app.include_router(page_settings.router)
+app.include_router(page_reports.router)
