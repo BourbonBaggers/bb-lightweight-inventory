@@ -47,7 +47,7 @@ def current_counts_for_location(db: Session, location_id: int) -> list[Inventory
         .all()
     )
 
-    return [c for c in counts if _total_units(c) > 0]
+    return [c for c in counts if _has_qty(c)]
 
 
 def current_counts_for_product(db: Session, product_id: int) -> list[InventoryCount]:
@@ -77,7 +77,7 @@ def current_counts_for_product(db: Session, product_id: int) -> list[InventoryCo
         .all()
     )
 
-    return [c for c in counts if _total_units(c) > 0]
+    return [c for c in counts if _has_qty(c)]
 
 
 def _total_units(count: InventoryCount) -> int:
@@ -89,6 +89,10 @@ def _total_units(count: InventoryCount) -> int:
     if cpc and upc:
         return (cartons * cpc * upc) + (cases * upc) + units
     return units
+
+
+def _has_qty(count: InventoryCount) -> bool:
+    return bool((count.cartons_qty or 0) or (count.cases_qty or 0) or (count.units_qty or 0))
 
 
 def total_units(count: InventoryCount) -> int:
